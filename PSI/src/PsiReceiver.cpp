@@ -254,7 +254,9 @@ namespace PSI {
 		
 		if (psi == 100) {
 			std::cout << "Receiver intersection computed - correct!\n";
-		}
+		}  else {
+      std::cout << "Receiver intersection computed count = " << psi << std::endl;
+    }
 		timer.setTimePoint("Receiver intersection computed");
 		
 		
