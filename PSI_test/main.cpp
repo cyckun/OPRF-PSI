@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <fstream>
+#include <cmath>
 
 using namespace std;
 using namespace PSI;
@@ -76,7 +77,12 @@ void runSender() {
   else {
     /**********add file path api****************/
     read_elements(senderSet, &senderSize, input_path);
-    std::cout << "sender file size = " << senderSize << std::endl;
+    ch.send(&senderSize, 1);
+    ch.recv(&receiverSize, 1);
+    height = receiverSize;
+    logHeight = std::floor(std::log2(height));
+    
+    // std::cout << " receiver size = " << receiverSize << std::endl;
   }
 
   PsiSender psiSender;
@@ -111,6 +117,11 @@ void runReceiver() {
   else {
     /**********add file path api****************/
     read_elements(receiverSet, &receiverSize, input_path);
+    ch.send(&receiverSize, 1);
+    ch.recv(&senderSize, 1);
+    height = receiverSize;
+    logHeight = std::floor(std::log2(height));
+
     // add height test;
     std::cout << "receiver file size = " << receiverSize << std::endl;
   }
@@ -153,8 +164,8 @@ int main(int argc, char** argv) {
   cmd.setDefault("file", "");
   input_path = cmd.get<string>("file");
   if (input_path != "") {
-    senderSize = 1024;
-    receiverSize = 1024;
+    senderSize = 0;
+    receiverSize = 0;
   }
 
 
