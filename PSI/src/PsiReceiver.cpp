@@ -232,7 +232,7 @@ namespace PSI {
       u8* recvBuff = new u8[bucket2 * hashLengthInBytes];
 
       auto psi = 0;
-      std::vector<block> intersection;
+      std::vector<u64> intersection;
 
       for (auto low = 0; low < senderSize; low += bucket2) {
         auto up = low + bucket2 < senderSize ? low + bucket2 : senderSize;
@@ -249,21 +249,24 @@ namespace PSI {
           for (auto i = 0; i < found->second.size(); ++i) {
             if (memcmp(&(found->second[i].first), recvBuff + idx * hashLengthInBytes, hashLengthInBytes) == 0) {
               ++psi;
-              intersection.push_back(found->second[i].first);
+              intersection.push_back(found->second[i].second);
               break;
             }
           }
         }
       }
 
+	  if (intersection.size() > 1) {
+		  std::sort(intersection.begin(), intersection.end());
+	  }
+
       std::ofstream ofile;
-      ofile.open("./result.csv");
+      ofile.open("./index_result.csv");
       for (int i = 0; i < intersection.size(); ++i) {
         // write intersection result into file;
         ofile << std::setw(16) << intersection[i] << std::endl;
 
       }
-      ofile.close();
 
       if (psi == 100) {
         std::cout << "Receiver intersection computed - correct!\n";

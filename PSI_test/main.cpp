@@ -82,7 +82,7 @@ void runSender() {
     height = receiverSize;
     logHeight = std::floor(std::log2(height));
     
-    // std::cout << " receiver size = " << receiverSize << std::endl;
+    std::cout << " sender/receiver size = " << senderSize << "/" << receiverSize << std::endl;
   }
 
   PsiSender psiSender;
@@ -121,13 +121,53 @@ void runReceiver() {
     ch.recv(&senderSize, 1);
     height = receiverSize;
     logHeight = std::floor(std::log2(height));
-
-    // add height test;
+    
     std::cout << "receiver file size = " << receiverSize << std::endl;
   }
 
   PsiReceiver psiReceiver;
   psiReceiver.run(prng, ch, commonSeed, senderSize, receiverSize, height, logHeight, width, receiverSet, hashLengthInBytes, 32, bucket1, bucket2);
+  
+  // save plain result;
+  if (input_path != "") {
+    ifstream infile(input_path.c_str()), indexfile("./index_result.csv");
+    ofstream ofile;
+    ofile.open("./intersection_result.csv");
+  
+    if(!infile.good() || !indexfile.good() || !ofile.good()) {
+      string file_name = "";
+      if (!infile.good()) file_name = input_path;
+      if (!indexfile.good()) file_name = "./index_result.csv";
+      if (!ofile.good()) file_name = "./intersection.csv";
+      cerr << "file " << file_name << " does not exist, program exiting!" << endl;
+      ch.close();
+      ep.stop();
+      ios.stop();
+      exit(0);
+    }
+    std::vector<uint64_t> index;
+    std::vector <std::string> intersection;
+    std::string line;
+    while (std::getline(indexfile, line)) {  // get the intersection index, which is  output of PSI
+      index.push_back(std::atoi(line.c_str()));
+    }
+    if (index.size() > 0) { // intersection not empty
+      uint32_t index_count  = 0;
+      uint32_t line_count = 0;
+      while (std::getline(infile, line)) {   
+        if (line_count == index[index_count]) {
+          intersection.push_back(line);
+          index_count++;
+          if (index_count > index.size()) break;
+        }
+        line_count++;
+      }
+      for (uint32_t i = 0; i < intersection.size(); ++i) {
+        ofile << intersection[i] << std::endl;
+      }
+     }
+  }
+  
 
   ch.close();
   ep.stop();
