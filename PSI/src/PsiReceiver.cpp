@@ -12,7 +12,7 @@
 
 namespace PSI {
 
-    void PsiReceiver::run(PRNG& prng, Channel& ch, block commonSeed, const u64& senderSize, const u64& receiverSize, const u64& height, const u64& logHeight, const u64& width, std::vector<block>& receiverSet, const u64& hashLengthInBytes, const u64& h1LengthInBytes, const u64& bucket1, const u64& bucket2) {
+    void PsiReceiver::run(PRNG& prng, Channel& ch, block commonSeed, const u64& senderSize, const u64& receiverSize, const u64& height, const u64& logHeight, const u64& width, std::vector<block>& receiverSet, const u64& hashLengthInBytes, const u64& h1LengthInBytes, const u64& bucket1, const u64& bucket2, std::vector<u64>& index) {
 
       Timer timer;
 
@@ -232,7 +232,7 @@ namespace PSI {
       u8* recvBuff = new u8[bucket2 * hashLengthInBytes];
 
       auto psi = 0;
-      std::vector<u64> intersection;
+      // std::vector<u64> intersection;
 
       for (auto low = 0; low < senderSize; low += bucket2) {
         auto up = low + bucket2 < senderSize ? low + bucket2 : senderSize;
@@ -249,24 +249,23 @@ namespace PSI {
           for (auto i = 0; i < found->second.size(); ++i) {
             if (memcmp(&(found->second[i].first), recvBuff + idx * hashLengthInBytes, hashLengthInBytes) == 0) {
               ++psi;
-              intersection.push_back(found->second[i].second);
+              index.push_back(found->second[i].second);
               break;
             }
           }
         }
       }
 
-	  if (intersection.size() > 1) {
-		  std::sort(intersection.begin(), intersection.end());
-	  }
-
-      std::ofstream ofile;
-      ofile.open("./index_result.csv");
-      for (int i = 0; i < intersection.size(); ++i) {
-        // write intersection result into file;
-        ofile << std::setw(16) << intersection[i] << std::endl;
-
+      if (index.size() > 1) {
+        std::sort(index.begin(), index.end());
       }
+
+//      std::ofstream ofile;
+//      ofile.open("./index_result.csv");
+//      for (int i = 0; i < intersection.size(); ++i) {
+//        // write intersection result into file;
+//        ofile << intersection[i] << std::endl;
+//      }
 
       if (psi == 100) {
         std::cout << "Receiver intersection computed - correct!\n";
@@ -290,8 +289,4 @@ namespace PSI {
       std::cout << "Receiver received communication: " << recvData / std::pow(2.0, 20) << " MB\n";
       std::cout << "Receiver total communication: " << totalData / std::pow(2.0, 20) << " MB\n";
     }
-
-
-
-
 }

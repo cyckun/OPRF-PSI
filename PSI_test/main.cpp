@@ -27,6 +27,7 @@ u64 hashLengthInBytes;
 u64 bucket, bucket1, bucket2;
 string ip;
 string input_path = "";
+string output_path = "";
 
 void read_elements(vector<block>& data_set, uint64_t* nelements, string filename) {
   uint32_t i, j;
@@ -81,7 +82,7 @@ void runSender() {
     ch.recv(&receiverSize, 1);
     height = receiverSize;
     logHeight = std::floor(std::log2(height));
-    
+
     std::cout << " sender/receiver size = " << senderSize << "/" << receiverSize << std::endl;
   }
 
@@ -121,53 +122,49 @@ void runReceiver() {
     ch.recv(&senderSize, 1);
     height = receiverSize;
     logHeight = std::floor(std::log2(height));
-    
+
     std::cout << "receiver file size = " << receiverSize << std::endl;
   }
 
   PsiReceiver psiReceiver;
-  psiReceiver.run(prng, ch, commonSeed, senderSize, receiverSize, height, logHeight, width, receiverSet, hashLengthInBytes, 32, bucket1, bucket2);
-  
+  std::vector<u64> index_result;
+  psiReceiver.run(prng, ch, commonSeed, senderSize, receiverSize, height, logHeight, width, receiverSet, hashLengthInBytes, 32, bucket1, bucket2,
+                  index_result);
+
   // save plain result;
   if (input_path != "") {
-    ifstream infile(input_path.c_str()), indexfile("./index_result.csv");
+    ifstream infile(input_path.c_str());
     ofstream ofile;
-    ofile.open("./intersection_result.csv");
-  
-    if(!infile.good() || !indexfile.good() || !ofile.good()) {
+    ofile.open(output_path.c_str());
+
+    if ( !infile.good()|| !ofile.good()) {
       string file_name = "";
       if (!infile.good()) file_name = input_path;
-      if (!indexfile.good()) file_name = "./index_result.csv";
-      if (!ofile.good()) file_name = "./intersection.csv";
+      if (!ofile.good()) file_name = output_path;
       cerr << "file " << file_name << " does not exist, program exiting!" << endl;
       ch.close();
       ep.stop();
       ios.stop();
       exit(0);
     }
-    std::vector<uint64_t> index;
     std::vector <std::string> intersection;
     std::string line;
-    while (std::getline(indexfile, line)) {  // get the intersection index, which is  output of PSI
-      index.push_back(std::atoi(line.c_str()));
-    }
-    if (index.size() > 0) { // intersection not empty
+    if (index_result.size() > 0) { // intersection not empty
       uint32_t index_count  = 0;
       uint32_t line_count = 0;
-      while (std::getline(infile, line)) {   
-        if (line_count == index[index_count]) {
+      while (std::getline(infile, line)) {
+        if (line_count == index_result[index_count]) {
           intersection.push_back(line);
           index_count++;
-          if (index_count > index.size()) break;
+          if (index_count > index_result.size()) break;
         }
         line_count++;
       }
       for (uint32_t i = 0; i < intersection.size(); ++i) {
         ofile << intersection[i] << std::endl;
       }
-     }
+    }
   }
-  
 
   ch.close();
   ep.stop();
@@ -207,7 +204,15 @@ int main(int argc, char** argv) {
     senderSize = 0;
     receiverSize = 0;
   }
-
+  cmd.setDefault("ofile", "");
+  output_path = cmd.get<string>("ofile");
+  if (input_path != "" && cmd.get<u64>("r") == 1) {
+    if (output_path == "") {
+      cerr << "input file has set, but not set outfile path, program exit!" << endl;
+      exit(0);
+    }
+      
+  }
 
   bucket1 = bucket2 = 1 << 8;
 
@@ -242,4 +247,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
