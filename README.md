@@ -31,3 +31,9 @@ $ ./bin/PSI_test -r 0 -ss 20 -rs 20 -w 621 -h 20 -hash 10 -ip 127.0.0.1
 
 ## Help
 For any questions on building or running the library, please contact [`Peihan Miao`](https://sites.google.com/view/peihanmiao) at peihan at berkeley dot edu
+
+## Fork Develop by cyckun
+1. bak libOTe in cyckun's repo, as it is changable;
+2. update boost download url; Note: this url often slow, should retry
+3. should delete other Boost in OS; This not a good idea, but PSI project no compatable with other BOOST version
+4. TODO: add Dockerfile to avoid boost conflict 
