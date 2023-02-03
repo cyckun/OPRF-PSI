@@ -4,12 +4,12 @@
 #include <cryptoTools/Network/Endpoint.h>
 #include <cryptoTools/Network/Channel.h>
 #include <cryptoTools/Crypto/PRNG.h>
-#include <cryptoTools/Crypto/Curve.h>
+#include <cryptoTools/Crypto/RCurve.h>
 #include <cryptoTools/Crypto/RandomOracle.h>
 #include <cryptoTools/Common/BitVector.h>
 #include <cryptoTools/Common/Timer.h>
-#include <libOTe/TwoChooseOne/IknpOtExtSender.h>
-#include <libOTe/TwoChooseOne/IknpOtExtReceiver.h>
+#include <libOTe/TwoChooseOne/Iknp/IknpOtExtSender.h>
+#include <libOTe/TwoChooseOne/Iknp/IknpOtExtReceiver.h>
 
 
 namespace PSI {

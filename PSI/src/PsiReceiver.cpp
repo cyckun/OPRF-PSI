@@ -12,7 +12,32 @@
 
 namespace PSI {
 
+<<<<<<< HEAD
     void PsiReceiver::run(PRNG& prng, Channel& ch, block commonSeed, const u64& senderSize, const u64& receiverSize, const u64& height, const u64& logHeight, const u64& width, std::vector<block>& receiverSet, const u64& hashLengthInBytes, const u64& h1LengthInBytes, const u64& bucket1, const u64& bucket2, std::vector<u64>& index) {
+=======
+	void PsiReceiver::run(PRNG& prng, Channel& ch, block commonSeed, const u64& senderSize, const u64& receiverSize, const u64& height, const u64& logHeight, const u64& width, std::vector<block>& receiverSet, const u64& hashLengthInBytes, const u64& h1LengthInBytes, const u64& bucket1, const u64& bucket2) {
+	
+		Timer timer;
+		
+		timer.setTimePoint("Receiver start");
+		
+		TimeUnit start, end;
+		
+		auto heightInBytes = (height + 7) / 8;
+		auto widthInBytes = (width + 7) / 8;
+		auto locationInBytes = (logHeight + 7) / 8;
+		auto receiverSizeInBytes = (receiverSize + 7) / 8;
+		auto shift = (1 << logHeight) - 1;
+		auto widthBucket1 = sizeof(block) / locationInBytes;
+		
+		
+		///////////////////// Base OTs ///////////////////////////
+		
+		IknpOtExtSender otExtSender;
+		// otExtSender.genBaseOts(prng, ch);
+		
+		std::vector<std::array<block, 2> > otMessages(width);
+>>>>>>> 89a7247 (use lastest libOTe)
 
       Timer timer;
 
